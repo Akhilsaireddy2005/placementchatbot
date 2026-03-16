@@ -1,0 +1,13 @@
+services:
+
+  - type: web
+    name: placement-backend
+    env: docker
+    rootDir: backend
+    plan: free
+
+  - type: web
+    name: placement-frontend
+    env: docker
+    rootDir: frontend
+    plan: free
