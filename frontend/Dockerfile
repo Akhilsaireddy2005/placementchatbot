@@ -4,11 +4,11 @@ FROM node:18-slim AS build
 WORKDIR /app
 
 # Install dependencies
-COPY package*.json ./
+COPY frontend/package*.json ./
 RUN npm install
 
 # Copy source and build
-COPY . .
+COPY frontend/ .
 RUN npm run build
 
 # Production stage
