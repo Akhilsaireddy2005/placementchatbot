@@ -13,6 +13,7 @@
     "axios": "^1.13.6",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.36.0",
+    "placement-chatbot-root": "file:..",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-dropzone": "^15.0.0",
