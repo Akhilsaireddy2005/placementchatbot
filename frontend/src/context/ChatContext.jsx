@@ -16,13 +16,66 @@ export const ChatProvider = ({ children }) => {
         setLoading(true);
 
         try {
-            const res = await api.post('/chat/send', { message: content, chatId });
-            setChatId(res.data.chatId);
-            const aiMsg = { role: 'assistant', content: res.data.reply, timestamp: new Date() };
-            setMessages((prev) => [...prev, aiMsg]);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/chat/send`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ message: content, chatId, stream: true })
+            });
+
+            if (!response.ok) throw new Error('Failed to send message');
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            
+            // Add initial assistant message for streaming
+            setMessages((prev) => [...prev, { role: 'assistant', content: '', timestamp: new Date() }]);
+            let currentAiContent = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const dataString = line.slice(6).trim();
+                        if (dataString === '[DONE]') continue;
+                        
+                        try {
+                            const parsed = JSON.parse(dataString);
+                            if (parsed.chatId) {
+                                setChatId(parsed.chatId);
+                            }
+                            if (parsed.content) {
+                                currentAiContent += parsed.content;
+                                setMessages((prev) => {
+                                    const next = [...prev];
+                                    const last = next[next.length - 1];
+                                    if (last.role === 'assistant') {
+                                        last.content = currentAiContent;
+                                    }
+                                    return next;
+                                });
+                            }
+                        } catch (e) {
+                            console.error('Error parsing SSE chunk:', e);
+                        }
+                    }
+                }
+            }
+            
+            loadHistory();
         } catch (err) {
+            console.error(err);
             toast.error('Failed to send message');
-            setMessages((prev) => prev.slice(0, -1)); // Remove optimistic user msg
+            // We don't remove optimistic msg if it's already there, 
+            // but maybe show error state or something.
         } finally {
             setLoading(false);
         }

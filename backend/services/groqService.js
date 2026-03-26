@@ -30,6 +30,21 @@ const sendMessageToGroq = async (messages) => {
     return completion.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
 };
 
+const sendStreamingMessageToGroq = async (messages) => {
+    return await groq.chat.completions.create({
+        model: 'openai/gpt-oss-120b',
+        messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...messages,
+        ],
+        stream: true,
+        temperature: 1,
+        max_completion_tokens: 8192,
+        top_p: 1,
+        reasoning_effort: 'medium',
+    });
+};
+
 const analyzeResumeWithAI = async (resumeText, structure = {}) => {
     const PROMPT = `
     You are a highly critical ATS (Applicant Tracking System) Expert and Senior Recruiter.
@@ -93,4 +108,4 @@ const analyzeResumeWithAI = async (resumeText, structure = {}) => {
     }
 };
 
-module.exports = { sendMessageToGroq, analyzeResumeWithAI };
+module.exports = { sendMessageToGroq, analyzeResumeWithAI, sendStreamingMessageToGroq };
