@@ -16,15 +16,14 @@ Always be encouraging, specific, and actionable. If a student shares details abo
 
 const sendMessageToGroq = async (messages) => {
     const completion = await groq.chat.completions.create({
-        model: 'openai/gpt-oss-120b',
+        model: 'llama-3.3-70b-versatile',
         messages: [
             { role: 'system', content: SYSTEM_PROMPT },
             ...messages,
         ],
-        temperature: 1,
-        max_completion_tokens: 8192,
+        temperature: 0.7,
+        max_tokens: 8192,
         top_p: 1,
-        reasoning_effort: 'medium',
     });
 
     return completion.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
@@ -32,16 +31,15 @@ const sendMessageToGroq = async (messages) => {
 
 const sendStreamingMessageToGroq = async (messages) => {
     return await groq.chat.completions.create({
-        model: 'openai/gpt-oss-120b',
+        model: 'llama-3.3-70b-versatile',
         messages: [
             { role: 'system', content: SYSTEM_PROMPT },
             ...messages,
         ],
         stream: true,
-        temperature: 1,
-        max_completion_tokens: 8192,
+        temperature: 0.7,
+        max_tokens: 8192,
         top_p: 1,
-        reasoning_effort: 'medium',
     });
 };
 
