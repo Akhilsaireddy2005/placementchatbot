@@ -1,6 +1,6 @@
 [build]
   # Install both frontend and backend deps, then build the frontend
-  command = "cd backend && npm install && cd ../frontend && npm install && npm run build"
+  command = "cd backend && npm install && cd ../frontend && npm install --include=dev && npm run build"
   publish = "frontend/dist"
 
 [functions]
