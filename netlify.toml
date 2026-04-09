@@ -1,0 +1,20 @@
+[build]
+  # Install both frontend and backend deps, then build the frontend
+  command = "cd backend && npm install && cd ../frontend && npm install && npm run build"
+  publish = "frontend/dist"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Route all /api/* calls to the serverless Express function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+# SPA fallback — all other routes serve the React app
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
